@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d31965ce-bd20-4fe6-85dd-4b1a5d8556a1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="e70e29ce-5c73-474a-9503-5be7e895ed01" file="config.yaml" />
+	<sqs:config name="Amazon_SQS_Configuration" doc:name="Amazon SQS Configuration" doc:id="c886a647-96b4-4206-8253-4573bbdc5fb7" defaultQueueUrl="${sqs.url}" >
+		<sqs:basic-connection testQueueArn="${sqs.arn}" accessKey="${sqs.access}" secretKey="${sqs.secret}" region="us-east-2" />
+	</sqs:config>
+	<configuration doc:name="Configuration" doc:id="1a9f2fb1-04f1-4cb4-8fee-0c41db7c38a7" defaultErrorHandler-ref="globalError_Handler" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="846a7fdf-ccd3-4748-baa7-ad8c58bdb5eb" >
+		<http:request-connection host="${insight.url}" protocol="HTTPS"/>
+	</http:request-config>
+	<error-handler name="globalError_Handler" doc:id="a7208308-5d93-46c4-8468-28caa783a265" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0a81b264-29c2-4aaf-b215-6f5b95fd8935" type="APP:SQS_SEND_ERROR">
+			<set-payload value="Error while sending the message. Plesae  try again" doc:name="Set Payload" doc:id="01e75674-7032-4e1d-b435-88a303177254" />
+		</on-error-continue>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3a6e4e28-1014-4887-8883-c70dd71834c3" type="APP:REQUEST_FAILED">
+			<set-payload value="Request to New Relic Insights failed" doc:name="Set Payload" doc:id="d417c23e-0170-4ad1-886f-e7d0865ca9d0" />
+		</on-error-continue>
+	</error-handler>
+</mule>

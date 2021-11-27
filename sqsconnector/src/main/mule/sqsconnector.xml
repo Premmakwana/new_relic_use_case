@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="sqsconnectorFlow" doc:id="1f871aec-be02-431d-833f-def71f030266" >
+		<http:listener doc:name="Listener" doc:id="5aeafbb2-11b7-4bc9-96d8-749a1a9d6ce8" config-ref="HTTP_Listener_config" path="/sqs">
+			<http:response >
+				<http:body ><![CDATA[#[output application/json --- payload]]]></http:body>
+			</http:response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message to SQS" doc:id="e38981f9-8a6d-45b0-a810-9c1de98d1b20" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	delaySeconds: 0,
+	body: write(payload, "application/json"),
+	messageAttributes: {
+		"AccountId": {
+			"stringValue" : "000123456",
+			"dataType" : "String.AccountId"
+		} as Object {
+			class: "org.mule.extension.sqs.api.model.MessageAttributeValue"
+		},
+		"NumberId": {
+			"stringValue" : "230.000000000000000001",
+			"dataType" : "Number"
+		} as Object {
+			class : "org.mule.extension.sqs.api.model.MessageAttributeValue"
+		}
+	} as Object {
+		class: "java.util.HashMap"
+	}
+} as Object {
+	class: "org.mule.extension.sqs.api.model.Message"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sqs:send-message doc:name="Send message to SQS" doc:id="4644d508-b0a0-466b-b204-67e83fcd682a" config-ref="Amazon_SQS_Configuration">
+			<error-mapping targetType="APP:SQS_SEND_ERROR" />
+		</sqs:send-message>
+		<logger level="INFO" doc:name="Logger" doc:id="c50cd05c-fb36-4993-9e59-543fbd0b1f7c" message='#[{&#10;    "severity": "LOW",&#10;    "eventType": "InsightsLogs",&#10;    "messageId": "7238-8580565-84859-4858",&#10;    "muleAppName": "new-relic-insights",&#10;    "CreationDate": "2021-01-17T10:22:33",&#10;    "payload": "payload",&#10;    "result": "Success",&#10;    "endpoint": "/api/first"&#10;}]'/>
+	</flow>
+	<flow name="sqsconnectorFlow1" doc:id="119b7ca9-2e6a-4f6c-863a-664bb11b823d" initialState="started">
+		<sqs:receivemessages doc:name="Receive messages" doc:id="675918a6-e298-4b82-bec6-4242f7edc74b" config-ref="Amazon_SQS_Configuration"/>
+		<logger level="INFO" doc:name="Payload" doc:id="eaa88fdb-ad80-4af9-89da-ba0629b8c7c8" message="#[output application/json --- payload]"/>
+	</flow>
+</mule>

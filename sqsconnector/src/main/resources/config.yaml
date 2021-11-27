@@ -1,0 +1,10 @@
+sqs:
+  arn: "arn:aws:sqs:us-east-2:715929228429:TestSQSDemoQueue"
+  access: "AKIA2NMFVCSGQ2ICLPTA"
+  secret: "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"
+  url: "https://sqs.us-east-2.amazonaws.com/715929228429/TestSQSDemoQueue"
+  
+insight:
+  url: "insights-collector.newrelic.com/v1/accounts/3338729"
+  key: "NRII-OXhlA787d4I5VxXcWDtIG8gyABsr1sTG"
+  keyName: "X-insert-Key"
