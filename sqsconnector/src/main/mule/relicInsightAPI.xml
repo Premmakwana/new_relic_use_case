@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="relicInsightAPIFlow" doc:id="7bb53bf3-fb27-4971-a558-403eb51d8d0b" >
+		<http:listener doc:name="Listener" doc:id="0836c75c-f13c-405b-9928-ab61e83f5aa7" config-ref="HTTP_Listener_config" path="/postMsg" allowedMethods="POST">
+			<http:response >
+				<http:body ><![CDATA[#[output application/json --- payload]]]></http:body>
+			</http:response>
+		</http:listener>
+		<http:request method="POST" doc:name="POST to new relic insights" doc:id="132ddf40-c27a-4ac8-9344-f341735f266c" path="/events" config-ref="HTTP_Request_configuration">
+			<error-mapping targetType="APP:REQUEST_FAILED" />
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"X-insert-Key" : "NRII-OXhlA787d4I5VxXcWDtIG8gyABsr1sTG"
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="5cb415c7-abb2-4ba2-874a-b716e03cdd73" message="Payload is posted to New Relic insights API"/>
+	</flow>
+</mule>
