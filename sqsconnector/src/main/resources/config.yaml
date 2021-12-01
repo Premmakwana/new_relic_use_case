@@ -1,7 +1,7 @@
 sqs:
   arn: "arn:aws:sqs:us-east-2:715929228429:TestSQSDemoQueue"
-  access: "AKIA2NMFVCSGQ2ICLPTA"
-  secret: "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"
+  access: "**************"
+  secret: "******************************************"
   url: "https://sqs.us-east-2.amazonaws.com/715929228429/TestSQSDemoQueue"
   
 insight:
